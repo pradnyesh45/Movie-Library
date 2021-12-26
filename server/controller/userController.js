@@ -1,101 +1,69 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
-// module.exports = function verifyJWT(req, res, next) {
-//   const token = req.header["x-access-token"]?.split(" ")[1];
-
-//   if (token) {
-//     jwt.verify(token, process.env.PASSPORTSECRET, (err, decoded) => {
-//       if (err) {
-//         res.status(400).json({
-//           message: "Failed To Authenticate",
-//           status: false,
-//           isLoggedIn: false,
-//         });
-//         req.user = {};
-//         req.user.id = decoded.id;
-//         req.user.username = decoded.username;
-//         next();
-//       }
-//     });
-//   } else {
-//     res.status(400).json({
-//       message: "Incorrect Token Given",
-//       status: false,
-//       isLoggedIn: false,
-//     });
-//   }
-// };
+require("dotenv").config();
 
 module.exports.register = async (req, res) => {
-  const user = req.body;
-
-  const takenUsername = await User.findOne({ username: user.username });
-  const takenEmail = await User.findOne({ email: user.email });
-
-  if (takenUsername || takenEmail) {
-    res.status(400).json({
-      message: "This Username or Email is already been taken",
-      status: false,
+  try {
+    const encryptedPassword = await bcrypt.hash(req.body.password, 10);
+    const user = await User.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: encryptedPassword,
     });
-  } else {
-    user.password = await bcrypt.hash(req.body.password, 10);
-
-    const dbUser = new User({
-      username: user.username.toLowerCase(),
-      email: user.email.toLowerCase(),
-      password: user.password,
-    });
-
-    dbUser.save();
-    res.status(200).json({
-      message: "User successfully registerd",
+    return res.status(200).json({
+      message: "Successfull RESET",
       status: true,
+      data: user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error in registering the user",
+      status: false,
+      error: error,
     });
   }
 };
 
 module.exports.login = async (req, res) => {
-  const userLoggingIn = req.body;
-
-  User.findOne({ username: userLoggingIn.username }).then((dbUser) => {
-    if (!dbUser) {
+  try {
+    const user = await User.findOne({
+      email: req.body.email,
+    });
+    if (!user) {
       return res.status(400).json({
-        message: "Invalid Username or Password",
+        message: "User does not exist",
         status: false,
       });
     }
-    bcrypt
-      .compare(userLoggingIn.password, dbUser.password)
-      .then((isCorrect) => {
-        if (isCorrect) {
-          const payload = {
-            id: dbUser._id,
-            username: dbUser.username,
-          };
-          jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: 86400 },
-            (err, token) => {
-              if (err) {
-                return res.status(200).json({
-                  message: "Successfull logged in",
-                  status: true,
-                  token: "Bearer" + token,
-                });
-              }
-            }
-          );
-        } else {
-          return res.status(400).json({
-            message: "Invalid Username or Password",
-            status: true,
-          });
-        }
-      });
-  });
+    const checkPassword = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+
+    if (checkPassword) {
+      const token = jwt.sign(
+        {
+          email: user.email,
+          name: user.name,
+          id: user._id,
+        },
+        process.env.JWT_SECRET
+      );
+    }
+    return res.status(200).json({
+      message: "Successfully logged in",
+      status: true,
+      data: token,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message:
+        "Error in logging in the user. Try again after entering correct credentials",
+      status: false,
+      error: error,
+    });
+  }
 };
 
 module.exports.getUsername = async (req, res) => {
