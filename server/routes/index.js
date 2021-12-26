@@ -5,19 +5,21 @@ const router = express.Router();
 
 const controller = require("../controller/index");
 const userController = require("../controller/userController");
+const playlistController = require("../controller/playlistController");
+const movieController = require("../controller/movieController");
 // router.use(verifyJWT);
 // Home
 router.get("/", controller.home);
 router.post("/register", userController.register);
 router.post("/login", userController.login);
-router.get("/authenticate");
-router.post("/addPlaylist");
-router.delete("/deletePlaylist");
-router.get("/getPlaylists");
-router.get("/addMovieToPlaylist");
-router.delete("/deleteMovieFromPlaylist");
-router.delete("/deleteMovie");
-router.get("/getMoviesFromPlaylist");
-router.get("/viewPlaylistById/:id");
+router.get("/authenticate", controller.authenticate);
+router.post("/addPlaylist", playlistController.addPlaylist);
+router.delete("/deletePlaylist", playlistController.deletePlaylist);
+router.get("/getPlaylists", playlistController.getPlaylist);
+router.get("/addMovieToPlaylist", movieController.addMovieToPlaylist);
+router.delete(
+  "/deleteMovieFromPlaylist",
+  movieController.deleteMovieFromPlaylist
+);
 
 module.exports = router;

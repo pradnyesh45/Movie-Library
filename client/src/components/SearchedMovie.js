@@ -1,6 +1,6 @@
 import React from "react";
 
-function Playlist() {
+function SearchedMovie() {
   return (
     <div>
       <CardGroup>
@@ -50,4 +50,4 @@ function Playlist() {
   );
 }
 
-export default Playlist;
+export default SearchedMovie;
