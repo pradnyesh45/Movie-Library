@@ -12,7 +12,7 @@ module.exports.register = async (req, res) => {
       password: encryptedPassword,
     });
     return res.status(200).json({
-      message: "Successfull RESET",
+      message: "Successfull Registerd the user",
       status: true,
       data: user,
     });
@@ -50,12 +50,12 @@ module.exports.login = async (req, res) => {
         },
         process.env.JWT_SECRET
       );
+      return res.status(200).json({
+        message: "Successfully logged in",
+        status: true,
+        data: token,
+      });
     }
-    return res.status(200).json({
-      message: "Successfully logged in",
-      status: true,
-      data: token,
-    });
   } catch (error) {
     return res.status(500).json({
       message:

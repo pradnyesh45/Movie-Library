@@ -1,17 +1,25 @@
-import { Switch, BrowserRouter, Route } from "react-router-dom";
-import { Register } from "./components/register";
-import { Login } from "./components/login";
-import { Profile } from "./components/profile";
+import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./screens/Home";
+import NavbarComponent from "./components/NavbarComponent";
+import Register from "./screens/Register";
+import Login from "./screens/Login";
+import { Container } from "react-bootstrap";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Switch>
-        <Route component={Register} exact path="/register" />
-        <Route component={Login} exact path="/login" />
-        <Route component={ProfilePage} exact path="/u/:userId" />
-      </Switch>
-    </BrowserRouter>
+    <div className="App">
+      <Container>
+        <BrowserRouter>
+          <NavbarComponent />
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Home />} />
+          </Routes>
+        </BrowserRouter>
+      </Container>
+    </div>
   );
 }
 
